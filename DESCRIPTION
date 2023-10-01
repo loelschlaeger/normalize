@@ -1,11 +1,10 @@
 Package: normalize
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Title: Centering and Scaling of Numeric Data
+Version: 0.0.0.9000
+Author: Lennart Oelschläger
+Maintainer: Lennart Oelschläger <oelschlaeger.lennart@gmail.com>
+Description: Centering and scaling of numeric data with some extensions to the base R solution.
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
@@ -15,3 +14,5 @@ Suggests:
 Config/testthat/edition: 3
 Imports: 
     stats
+URL: https://github.com/loelschlaeger/normalize
+BugReports: https://github.com/loelschlaeger/normalize/issues

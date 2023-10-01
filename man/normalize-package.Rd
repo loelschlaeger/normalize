@@ -4,8 +4,16 @@
 \name{normalize-package}
 \alias{normalize-package}
 \alias{_PACKAGE}
-\title{normalize: What the Package Does (Title Case)}
+\title{normalize: Centering and Scaling of Numeric Data}
 \description{
-More about what it does (maybe more than one line) Use four spaces when indenting paragraphs within the Description.
+Centering and scaling of numeric data with some extensions to the base R solution.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/loelschlaeger/normalize}
+  \item Report bugs at \url{https://github.com/loelschlaeger/normalize/issues}
+}
+
 }
 \keyword{internal}
