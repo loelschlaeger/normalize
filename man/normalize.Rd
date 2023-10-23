@@ -18,7 +18,7 @@ normalize(x, center = TRUE, scale = TRUE, ...)
   scale = TRUE,
   byrow = FALSE,
   ignore = integer(),
-  jointly = integer(),
+  jointly = list(),
   ...
 )
 
@@ -28,7 +28,7 @@ normalize(x, center = TRUE, scale = TRUE, ...)
   scale = TRUE,
   byrow = FALSE,
   ignore = integer(),
-  jointly = integer(),
+  jointly = list(),
   ...
 )
 
@@ -53,9 +53,25 @@ indices if \code{byrow = TRUE}) to normalize jointly}
 }
 \value{
 the normalized input \code{x} with the \code{numeric} centering and scaling
-used (if any) added as attributes \code{"center"} and \code{"scale"}
+values used (if any) added as attributes \code{"center"} and \code{"scale"}
 }
 \description{
-normalize numeric data saved as a \code{vector}, \code{matrix},
-\code{data.frame}, or \code{list} to zero mean and / or unit variance
+normalize \code{numeric} data saved as a \code{vector}, \code{matrix},
+\code{data.frame}, or \code{list} to have zero mean and / or unit variance
+}
+\examples{
+# can normalize vectors, matrices, data.frames, and lists of such types
+normalize(
+  list(
+    1:10,
+    matrix(1:12, nrow = 3, ncol = 4),
+    data.frame(a = 1:6, b = -6:-1)
+  )
+)
+
+# can ignore columns (or rows)
+# TODO
+
+# can normalize columns (or rows) jointly
+# TODO
 }

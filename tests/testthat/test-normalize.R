@@ -29,13 +29,41 @@ test_that("can normalize single numeric", {
 })
 
 test_that("can normalize vector", {
-  normalize(1)
-  normalize(1, center = FALSE)
-  normalize(1, scale = FALSE)
-  normalize(1, center = FALSE, scale = FALSE)
+  x <- 1:10
+  mean_x <- mean(x)
+  sd_x <- stats::sd(x)
+  expect_identical(
+    normalize(x),
+    structure((x - mean_x) / sd_x, center = mean_x, scale = sd_x)
+  )
+  expect_identical(
+    normalize(x, center = FALSE),
+    structure(x / sd_x, scale = sd_x)
+  )
+  expect_identical(
+    normalize(x, scale = FALSE),
+    structure(x - mean_x, center = mean_x)
+  )
+  expect_identical(
+    normalize(x, center = FALSE, scale = FALSE),
+    x
+  )
 })
 
-test_that("can normalize matrix", {
+test_that("can normalize matrix column-wise", {
+  x <- matrix(1:12, nrow = 3, ncol = 4)
+  expect_identical(
+    normalize(x),
+    structure(
+      c(-1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1),
+      dim = 3:4,
+      center = c(2, 5, 8, 11),
+      scale = c(1, 1, 1, 1)
+    )
+  )
+})
+
+test_that("can normalize matrix row-wise", {
 
 })
 

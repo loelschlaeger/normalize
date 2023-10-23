@@ -1,8 +1,8 @@
 #' Centering and scaling of numeric data
 #'
 #' @description
-#' normalize numeric data saved as a \code{vector}, \code{matrix},
-#' \code{data.frame}, or \code{list} to zero mean and / or unit variance
+#' normalize \code{numeric} data saved as a \code{vector}, \code{matrix},
+#' \code{data.frame}, or \code{list} to have zero mean and / or unit variance
 #'
 #' @param x
 #' an object to be normalized
@@ -29,9 +29,25 @@
 #'
 #' @return
 #' the normalized input \code{x} with the \code{numeric} centering and scaling
-#' used (if any) added as attributes \code{"center"} and \code{"scale"}
+#' values used (if any) added as attributes \code{"center"} and \code{"scale"}
 #'
 #' @export
+#'
+#' @examples
+#' # can normalize vectors, matrices, data.frames, and lists of such types
+#' normalize(
+#'   list(
+#'     1:10,
+#'     matrix(1:12, nrow = 3, ncol = 4),
+#'     data.frame(a = 1:6, b = -6:-1)
+#'   )
+#' )
+#'
+#' # can ignore columns (or rows)
+#' # TODO
+#'
+#' # can normalize columns (or rows) jointly
+#' # TODO
 
 normalize <- function(x, center = TRUE, scale = TRUE, ...) {
   if (is.character(x)) {
@@ -66,10 +82,28 @@ normalize.numeric <- function(
 
 normalize.matrix <- function(
     x, center = TRUE, scale = TRUE, byrow = FALSE, ignore = integer(),
-    jointly = integer(), ...
+    jointly = list(), ...
   ) {
+  stopifnot(
+    "please set 'byrow' to TRUE or FALSE" = isTRUE(byrow) || isFALSE(byrow),
+    "'jointly' should be a list" = is.list(jointly)
+  )
   margin <- ifelse(byrow, 1, 2)
-  apply(x, margin, normalize, center, scale)
+  indices <- if (byrow) seq_len(nrow(x)) else seq_len(ncol(x))
+  ignore <- as.integer(ignore)
+  stopifnot(
+    "indices in 'ignore' are out of bound" = ignore %in% indices,
+    "indices in 'ignore' are not unique" = length(ignore) == length(unique(ignore))
+  )
+  jointly <- lapply(jointly, as.integer)
+  stopifnot(
+    "indices in 'jointly' are out of bound" = all(sapply(jointly, `%in%`, indices)),
+    "indices in 'jointly' are not unique" = length(unlist(jointly)) == length(unique(unlist(jointly)))
+  )
+  normalized <- apply(x, margin, normalize, center = center, scale = scale, simplify = FALSE)
+  bring_in_shape(
+    x, normalized, byrow = byrow, ignore = ignore, jointly = jointly
+  )
 }
 
 #' @export
@@ -77,15 +111,53 @@ normalize.matrix <- function(
 
 normalize.data.frame <- function(
     x, center = TRUE, scale = TRUE, byrow = FALSE, ignore = integer(),
-    jointly = integer(), ...
+    jointly = list(), ...
   ) {
-  margin <- ifelse(byrow, 1, 2)
-  apply(x, margin, normalize, center, scale)
+  normalized <- normalize(
+    as.matrix(x), center = center, scale = scale, byrow = byrow, ignore = ignore,
+    jointly = jointly
+  )
+  bring_in_shape(
+    x, normalized, byrow = byrow, ignore = ignore, jointly = jointly,
+    attributes = attributes(x)
+  )
 }
 
 #' @export
 #' @rdname normalize
 
 normalize.list <- function(x, center = TRUE, scale = TRUE, ...) {
-  lapply(x, normalize, ...)
+  lapply(x, normalize, center = center, scale = scale, ...)
 }
+
+#' @keywords internal
+
+bring_in_shape <- function(x, normalized, byrow, ignore, jointly, ...) {
+  UseMethod("bring_in_shape")
+}
+
+#' @keywords internal
+
+bring_in_shape.matrix <- function(x, normalized, byrow, ignore, jointly) {
+  attributes <- sapply(normalized, attributes)
+  attribute_names <- rownames(attributes)
+  out <- matrix(NA_real_, nrow = nrow(x), ncol = ncol(x))
+  for (i in 1:ncol(x)) {
+    out[, i] <- normalized[[i]]
+  }
+  for (attribute_name in attribute_names) {
+    attr(out, attribute_name) <- unlist(attributes[attribute_name, ])
+  }
+  return(out)
+}
+
+#' @keywords internal
+
+bring_in_shape.data.frame <- function(
+    x, normalized, byrow, ignore, jointly, attributes
+  ) {
+  return(normalized)
+}
+
+
+
