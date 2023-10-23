@@ -2,12 +2,14 @@ Package: normalize
 Type: Package
 Title: Centering and Scaling of Numeric Data
 Version: 0.0.0.9000
-Author: Lennart Oelschläger
-Maintainer: Lennart Oelschläger <oelschlaeger.lennart@gmail.com>
+Authors@R: c(
+    person("Lennart", "Oelschl\u00e4ger", 
+           email = "oelschlaeger.lennart@gmail.com", 
+           role = c("aut", "cre"))
+           )
 Description: Centering and scaling of numeric data with some extensions to the base R solution.
 License: GPL (>= 3)
 Encoding: UTF-8
-LazyData: true
 RoxygenNote: 7.2.3
 Suggests: 
     testthat (>= 3.0.0)

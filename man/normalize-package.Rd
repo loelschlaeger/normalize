@@ -6,6 +6,8 @@
 \alias{_PACKAGE}
 \title{normalize: Centering and Scaling of Numeric Data}
 \description{
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
 Centering and scaling of numeric data with some extensions to the base R solution.
 }
 \seealso{
@@ -14,6 +16,10 @@ Useful links:
   \item \url{https://github.com/loelschlaeger/normalize}
   \item Report bugs at \url{https://github.com/loelschlaeger/normalize/issues}
 }
+
+}
+\author{
+\strong{Maintainer}: Lennart Oelschläger \email{oelschlaeger.lennart@gmail.com}
 
 }
 \keyword{internal}
