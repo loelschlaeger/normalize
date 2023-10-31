@@ -30,6 +30,7 @@
 #' @return
 #' the normalized input \code{x} with the \code{numeric} centering and scaling
 #' values used (if any) added as attributes \code{"center"} and \code{"scale"}
+#' (ignored columns and rows get centering and scaling values of \code{NA})
 #'
 #' @export
 #'
@@ -63,16 +64,14 @@ normalize <- function(x, center = TRUE, scale = TRUE, ...) {
 #' @export
 #' @rdname normalize
 
-normalize.numeric <- function(
-    x, center = TRUE, scale = TRUE, ...
-  ) {
+normalize.numeric <- function(x, center = TRUE, scale = TRUE, ...) {
+  normalize <- normalize(as.matrix(x), center = center, scale = scale)
+  x <- as.numeric(normalize)
   if (center) {
-    a <- mean(x)
-    x <- structure(x - a, "center" = a)
+    attr(x, "center") <- attr(normalize, "center")
   }
   if (scale) {
-    b <- stats::sd(x)
-    x <- structure(x / b, "scale" = b)
+    attr(x, "scale") <- attr(normalize, "scale")
   }
   return(x)
 }
@@ -86,24 +85,27 @@ normalize.matrix <- function(
   ) {
   stopifnot(
     "please set 'byrow' to TRUE or FALSE" = isTRUE(byrow) || isFALSE(byrow),
+    "'ignore' should be an index vector" = is.vector(ignore) && is.numeric(ignore),
     "'jointly' should be a list" = is.list(jointly)
   )
-  margin <- ifelse(byrow, 1, 2)
-  indices <- if (byrow) seq_len(nrow(x)) else seq_len(ncol(x))
-  ignore <- as.integer(ignore)
-  stopifnot(
-    "indices in 'ignore' are out of bound" = ignore %in% indices,
-    "indices in 'ignore' are not unique" = length(ignore) == length(unique(ignore))
-  )
-  jointly <- lapply(jointly, as.integer)
-  stopifnot(
-    "indices in 'jointly' are out of bound" = all(sapply(jointly, `%in%`, indices)),
-    "indices in 'jointly' are not unique" = length(unlist(jointly)) == length(unique(unlist(jointly)))
-  )
-  normalized <- apply(x, margin, normalize, center = center, scale = scale, simplify = FALSE)
-  bring_in_shape(
-    x, normalized, byrow = byrow, ignore = ignore, jointly = jointly
-  )
+  if (center) {
+    centering <- center_values(x, byrow = byrow, ignore = ignore, jointly = jointly)
+    x <- sweep(x, ifelse(byrow, 1, 2), centering, do_center)
+  }
+  if (scale) {
+    scaling <- scale_values(x, byrow = byrow, ignore = ignore, jointly = jointly)
+    x <- sweep(x, ifelse(byrow, 1, 2), scaling, do_scale)
+  }
+  if (anyNA(x)) {
+    warning("'x' has NAs after standardization")
+  }
+  if (center) {
+    attr(x, "center") <- centering
+  }
+  if (scale) {
+    attr(x, "scale") <- scaling
+  }
+  return(x)
 }
 
 #' @export
@@ -113,13 +115,9 @@ normalize.data.frame <- function(
     x, center = TRUE, scale = TRUE, byrow = FALSE, ignore = integer(),
     jointly = list(), ...
   ) {
-  normalized <- normalize(
-    as.matrix(x), center = center, scale = scale, byrow = byrow, ignore = ignore,
-    jointly = jointly
-  )
-  bring_in_shape(
-    x, normalized, byrow = byrow, ignore = ignore, jointly = jointly,
-    attributes = attributes(x)
+  normalize.matrix(
+    x, center = center, scale = scale, byrow = byrow, ignore = ignore,
+    jointly = jointly, ...
   )
 }
 
@@ -132,32 +130,96 @@ normalize.list <- function(x, center = TRUE, scale = TRUE, ...) {
 
 #' @keywords internal
 
-bring_in_shape <- function(x, normalized, byrow, ignore, jointly, ...) {
-  UseMethod("bring_in_shape")
-}
-
-#' @keywords internal
-
-bring_in_shape.matrix <- function(x, normalized, byrow, ignore, jointly) {
-  attributes <- sapply(normalized, attributes)
-  attribute_names <- rownames(attributes)
-  out <- matrix(NA_real_, nrow = nrow(x), ncol = ncol(x))
-  for (i in 1:ncol(x)) {
-    out[, i] <- normalized[[i]]
-  }
-  for (attribute_name in attribute_names) {
-    attr(out, attribute_name) <- unlist(attributes[attribute_name, ])
-  }
-  return(out)
-}
-
-#' @keywords internal
-
-bring_in_shape.data.frame <- function(
-    x, normalized, byrow, ignore, jointly, attributes
+center_values <- function(
+    x, byrow = TRUE, ignore = integer(), jointly = list()
   ) {
-  return(normalized)
+  stopifnot("'x' must be a matrix" = is.matrix(x))
+  centering <- rep(NA_real_, ifelse(byrow, nrow(x), ncol(x)))
+  indices <- if (byrow) seq_len(nrow(x)) else seq_len(ncol(x))
+  ignore <- as.integer(ignore)
+  jointly <- lapply(jointly, as.integer)
+  stopifnot(
+    "indices in 'ignore' are out of bound" = ignore %in% indices,
+    "indices in 'ignore' are not unique" = length(ignore) == length(unique(ignore))
+  )
+  stopifnot(
+    "indices in 'jointly' are out of bound" = all(sapply(jointly, `%in%`, indices)),
+    "indices in 'jointly' are not unique" = length(unlist(jointly)) == length(unique(unlist(jointly)))
+  )
+  if (length(ignore) > 0) {
+    if (byrow) {
+      x <- x[-ignore, , drop = FALSE]
+    } else {
+      x <- x[, -ignore, drop = FALSE]
+    }
+  }
+  stopifnot("'x' must be numeric" = is.numeric(x))
+  means <- apply(x, ifelse(byrow, 1, 2), mean, na.rm = TRUE, simplify = TRUE)
+  if (length(ignore) > 0) {
+    centering[-ignore] <- means
+  } else {
+    centering <- means
+  }
+  for (join in jointly) {
+    centering[join] <- mean(centering[join], na.rm = TRUE)
+  }
+  return(centering)
 }
 
+#' @keywords internal
 
+scale_values <- function(
+    x, byrow = TRUE, ignore = integer(), jointly = list()
+  ) {
+  stopifnot("'x' must be a matrix" = is.matrix(x))
+  scaling <- rep(NA_real_, ifelse(byrow, nrow(x), ncol(x)))
+  indices <- if (byrow) seq_len(nrow(x)) else seq_len(ncol(x))
+  ignore <- as.integer(ignore)
+  jointly <- lapply(jointly, as.integer)
+  stopifnot(
+    "indices in 'ignore' are out of bound" = ignore %in% indices,
+    "indices in 'ignore' are not unique" = length(ignore) == length(unique(ignore))
+  )
+  stopifnot(
+    "indices in 'jointly' are out of bound" = all(sapply(jointly, `%in%`, indices)),
+    "indices in 'jointly' are not unique" = length(unlist(jointly)) == length(unique(unlist(jointly)))
+  )
+  if (length(ignore) > 0) {
+    if (byrow) {
+      x <- x[-ignore, , drop = FALSE]
+    } else {
+      x <- x[, -ignore, drop = FALSE]
+    }
+  }
+  stopifnot("'x' must be numeric" = is.numeric(x))
+  sds <- apply(x, ifelse(byrow, 1, 2), stats::sd, na.rm = TRUE, simplify = TRUE)
+  if (length(ignore) > 0) {
+    scaling[-ignore] <- sds
+  } else {
+    scaling <- sds
+  }
+  for (join in jointly) {
+    scaling[join] <- mean(scaling[join], na.rm = TRUE) # TODO: how to combine scalings?
+  }
+  return(scaling)
+}
 
+#' @keywords internal
+
+do_center <- function(x, centering) {
+  if (is.na(centering)) {
+    x
+  } else {
+    x - centering
+  }
+}
+
+#' @keywords internal
+
+do_scale <- function(x, scaling) {
+  if (is.na(scaling)) {
+    x
+  } else {
+    x / scaling
+  }
+}

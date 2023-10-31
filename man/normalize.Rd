@@ -54,6 +54,7 @@ indices if \code{byrow = TRUE}) to normalize jointly}
 \value{
 the normalized input \code{x} with the \code{numeric} centering and scaling
 values used (if any) added as attributes \code{"center"} and \code{"scale"}
+(ignored columns and rows get centering and scaling values of \code{NA})
 }
 \description{
 normalize \code{numeric} data saved as a \code{vector}, \code{matrix},

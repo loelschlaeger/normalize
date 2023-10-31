@@ -61,10 +61,65 @@ test_that("can normalize matrix column-wise", {
       scale = c(1, 1, 1, 1)
     )
   )
+  expect_identical(
+    normalize(x, center = FALSE),
+    structure(
+      c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
+      dim = 3:4,
+      scale = c(1, 1, 1, 1)
+    )
+  )
+  expect_identical(
+    normalize(x, scale = FALSE),
+    structure(
+      c(-1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1),
+      dim = 3:4,
+      center = c(2, 5, 8, 11)
+    )
+  )
+  expect_identical(
+    normalize(x, center = FALSE, scale = FALSE),
+    structure(
+      c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
+      dim = 3:4
+    )
+  )
 })
 
 test_that("can normalize matrix row-wise", {
-
+  x <- matrix(1:12, nrow = 4, ncol = 3, byrow = TRUE)
+  expect_identical(
+    normalize(x, byrow = TRUE),
+    structure(
+      c(-1, -1, -1, -1, 0, 0, 0, 0, 1, 1, 1, 1),
+      dim = 4:3,
+      center = c(2, 5, 8, 11),
+      scale = c(1, 1, 1, 1)
+    )
+  )
+  expect_identical(
+    normalize(x, center = FALSE, byrow = TRUE),
+    structure(
+      c(1, 4, 7, 10, 2, 5, 8, 11, 3, 6, 9, 12),
+      dim = 4:3,
+      scale = c(1, 1, 1, 1)
+    )
+  )
+  expect_identical(
+    normalize(x, scale = FALSE, byrow = TRUE),
+    structure(
+      c(-1, -1, -1, -1, 0, 0, 0, 0, 1, 1, 1, 1),
+      dim = 4:3,
+      center = c(2, 5, 8, 11)
+    )
+  )
+  expect_identical(
+    normalize(x, center = FALSE, scale = FALSE, byrow = TRUE),
+    structure(
+      c(1, 4, 7, 10, 2, 5, 8, 11, 3, 6, 9, 12),
+      dim = 4:3
+    )
+  )
 })
 
 test_that("can normalize data.frame", {
