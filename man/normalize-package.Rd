@@ -8,7 +8,7 @@
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Centering and scaling of numeric data with some extensions to the base R solution.
+Provides a simple method for centering and scaling of numeric data. Certain columns or rows can be ignored when normalizing or be normalized jointly.
 }
 \seealso{
 Useful links:

@@ -4,11 +4,8 @@ output: github_document
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
+```{r, setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 library("normalize")
 ```
 
@@ -17,45 +14,61 @@ library("normalize")
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/loelschlaeger/normalize/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/loelschlaeger/normalize/actions/workflows/R-CMD-check.yaml)
 [![CRAN status](https://www.r-pkg.org/badges/version/normalize)](https://CRAN.R-project.org/package=normalize)
+[![Codecov test coverage](https://codecov.io/gh/loelschlaeger/normalize/branch/master/graph/badge.svg)](https://app.codecov.io/gh/loelschlaeger/normalize?branch=master)
 <!-- badges: end -->
 
-`{normalize}` is a small R package that allows for centering and scaling of numeric data. The goal is to extend the base R `scale()` function with some additional features:
+`{normalize}` is a small `R` package that allows for normalization (i.e., centering to zero mean and scaling to unit variance) of numeric data. The goal is to extend the base R `scale()` function with some additional features:
 
-- normalizing by row or by column
-- ignoring rows or columns when normalizing
-- normalizing certain rows or columns jointly
-- normalizing over list elements
+1. works for `vector`, `matrix`, `data.frame`, and `list` objects
+
+2. can normalize by row or by column
+
+3. can ignore some rows or columns when normalizing
+
+4. allows for joint normalizing of certain rows or columns
 
 ## Installation
 
-You can install the development version of normalize like so:
+```{r, install released, eval = FALSE}
+install.packages("normalize")
+```
 
-``` r
+And the development version from [GitHub](https://github.com/) with:
+
+```{r, install dev, eval = FALSE}
 # install.packages("devtools")
-devtools::install.github("loelschlaeger/normalize")
+devtools::install_github("loelschlaeger/normalize")
 ```
 
 ## Example
 
-We can work on a vector:
+Can normalize a `vector`:
 
 ```{r}
-normalize(1:5)
+normalize(1:10)
+normalize(1:10, center = FALSE)
+normalize(1:10, scale = FALSE)
 ```
 
-We can work on a matrix:
+Can normalize a `matrix`:
 
 ```{r}
-normalize(diag(3))
+normalize(
+  matrix(1:12, nrow = 3, ncol = 4),
+  jointly = list(1:2, 3:4) # joint normalization of columns 1, 2 and 3, 4
+)
 ```
 
-We can work on a data frame:
+Can normalize a `data.frame`:
 
 ```{r}
-normalize(data.frame(1:3, 2:4))
+normalize(
+  data.frame(a = 1:3, b = c("A", "B", "C"), c = 7:9, d = 10:12),
+  ignore = 2 # ignore character column 2 for normalization
+)
 ```
 
-We can work on a list:
+Can work on a `list`:
 
 ```{r}
 normalize(list(1:5, diag(3), data.frame(1:3, 2:4)))

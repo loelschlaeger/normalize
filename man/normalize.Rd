@@ -61,18 +61,24 @@ normalize \code{numeric} data saved as a \code{vector}, \code{matrix},
 \code{data.frame}, or \code{list} to have zero mean and / or unit variance
 }
 \examples{
-# can normalize vectors, matrices, data.frames, and lists of such types
+# can normalize numeric vectors, matrices, data.frames, and lists of those
 normalize(
   list(
-    1:10,
+    c(-3, 0, 3),
     matrix(1:12, nrow = 3, ncol = 4),
-    data.frame(a = 1:6, b = -6:-1)
+    data.frame(a = 1:3, b = 4:6, c = 7:9, d = 10:12)
   )
 )
 
 # can ignore columns (or rows)
-# TODO
+normalize(
+  data.frame(a = 1:3, b = c("A", "B", "C"), c = 7:9, d = 10:12),
+  ignore = 2
+)
 
 # can normalize columns (or rows) jointly
-# TODO
+normalize(
+  matrix(1:12, nrow = 3, ncol = 4),
+  jointly = list(1:2, 3:4)
+)
 }

@@ -35,20 +35,26 @@
 #' @export
 #'
 #' @examples
-#' # can normalize vectors, matrices, data.frames, and lists of such types
+#' # can normalize numeric vectors, matrices, data.frames, and lists of those
 #' normalize(
 #'   list(
-#'     1:10,
+#'     c(-3, 0, 3),
 #'     matrix(1:12, nrow = 3, ncol = 4),
-#'     data.frame(a = 1:6, b = -6:-1)
+#'     data.frame(a = 1:3, b = 4:6, c = 7:9, d = 10:12)
 #'   )
 #' )
 #'
 #' # can ignore columns (or rows)
-#' # TODO
+#' normalize(
+#'   data.frame(a = 1:3, b = c("A", "B", "C"), c = 7:9, d = 10:12),
+#'   ignore = 2
+#' )
 #'
 #' # can normalize columns (or rows) jointly
-#' # TODO
+#' normalize(
+#'   matrix(1:12, nrow = 3, ncol = 4),
+#'   jointly = list(1:2, 3:4)
+#' )
 
 normalize <- function(x, center = TRUE, scale = TRUE, ...) {
   if (is.character(x)) {
@@ -65,15 +71,10 @@ normalize <- function(x, center = TRUE, scale = TRUE, ...) {
 #' @rdname normalize
 
 normalize.numeric <- function(x, center = TRUE, scale = TRUE, ...) {
-  normalize <- normalize(as.matrix(x), center = center, scale = scale)
-  x <- as.numeric(normalize)
-  if (center) {
-    attr(x, "center") <- attr(normalize, "center")
-  }
-  if (scale) {
-    attr(x, "scale") <- attr(normalize, "scale")
-  }
-  return(x)
+  structure(
+    normalize(as.matrix(x), center = center, scale = scale, byrow = FALSE),
+    "dim" = NULL
+  )
 }
 
 #' @export
@@ -90,14 +91,38 @@ normalize.matrix <- function(
   )
   if (center) {
     centering <- center_values(x, byrow = byrow, ignore = ignore, jointly = jointly)
-    x <- sweep(x, ifelse(byrow, 1, 2), centering, do_center)
+    if (length(ignore) > 0) {
+      if (byrow) {
+        x[-ignore, ] <- sweep(x[-ignore, , drop = FALSE], 1, centering[-ignore], "-")
+      } else {
+        x[, -ignore] <- sweep(x[, -ignore, drop = FALSE], 2, centering[-ignore], "-")
+      }
+    } else {
+      if (byrow) {
+        x <- sweep(x, 1, centering, "-")
+      } else {
+        x <- sweep(x, 2, centering, "-")
+      }
+    }
   }
   if (scale) {
     scaling <- scale_values(x, byrow = byrow, ignore = ignore, jointly = jointly)
-    x <- sweep(x, ifelse(byrow, 1, 2), scaling, do_scale)
+    if (length(ignore) > 0) {
+      if (byrow) {
+        x[-ignore, ] <- sweep(x[-ignore, , drop = FALSE], 1, scaling[-ignore], "/")
+      } else {
+        x[, -ignore] <- sweep(x[, -ignore, drop = FALSE], 2, scaling[-ignore], "/")
+      }
+    } else {
+      if (byrow) {
+        x <- sweep(x, 1, scaling, "/")
+      } else {
+        x <- sweep(x, 2, scaling, "/")
+      }
+    }
   }
   if (anyNA(x)) {
-    warning("'x' has NAs after standardization")
+    warning("'x' has NAs after normalization")
   }
   if (center) {
     attr(x, "center") <- centering
@@ -133,7 +158,6 @@ normalize.list <- function(x, center = TRUE, scale = TRUE, ...) {
 center_values <- function(
     x, byrow = TRUE, ignore = integer(), jointly = list()
   ) {
-  stopifnot("'x' must be a matrix" = is.matrix(x))
   centering <- rep(NA_real_, ifelse(byrow, nrow(x), ncol(x)))
   indices <- if (byrow) seq_len(nrow(x)) else seq_len(ncol(x))
   ignore <- as.integer(ignore)
@@ -153,7 +177,6 @@ center_values <- function(
       x <- x[, -ignore, drop = FALSE]
     }
   }
-  stopifnot("'x' must be numeric" = is.numeric(x))
   means <- apply(x, ifelse(byrow, 1, 2), mean, na.rm = TRUE, simplify = TRUE)
   if (length(ignore) > 0) {
     centering[-ignore] <- means
@@ -171,7 +194,6 @@ center_values <- function(
 scale_values <- function(
     x, byrow = TRUE, ignore = integer(), jointly = list()
   ) {
-  stopifnot("'x' must be a matrix" = is.matrix(x))
   scaling <- rep(NA_real_, ifelse(byrow, nrow(x), ncol(x)))
   indices <- if (byrow) seq_len(nrow(x)) else seq_len(ncol(x))
   ignore <- as.integer(ignore)
@@ -191,35 +213,16 @@ scale_values <- function(
       x <- x[, -ignore, drop = FALSE]
     }
   }
-  stopifnot("'x' must be numeric" = is.numeric(x))
   sds <- apply(x, ifelse(byrow, 1, 2), stats::sd, na.rm = TRUE, simplify = TRUE)
   if (length(ignore) > 0) {
     scaling[-ignore] <- sds
   } else {
     scaling <- sds
   }
+  n <- ifelse(byrow, ncol(x), nrow(x))
   for (join in jointly) {
-    scaling[join] <- mean(scaling[join], na.rm = TRUE) # TODO: how to combine scalings?
+    scaling[join] <- sqrt(sum((scaling[join]^2 * (n - 1))) / (length(scaling[join]) * (n - 1)))
   }
   return(scaling)
 }
 
-#' @keywords internal
-
-do_center <- function(x, centering) {
-  if (is.na(centering)) {
-    x
-  } else {
-    x - centering
-  }
-}
-
-#' @keywords internal
-
-do_scale <- function(x, scaling) {
-  if (is.na(scaling)) {
-    x
-  } else {
-    x / scaling
-  }
-}
