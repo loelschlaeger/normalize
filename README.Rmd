@@ -29,15 +29,10 @@ library("normalize")
 
 ## Installation
 
+You can install the released version from [CRAN](https://CRAN.R-project.org) with:
+
 ```{r, install released, eval = FALSE}
 install.packages("normalize")
-```
-
-And the development version from [GitHub](https://github.com/) with:
-
-```{r, install dev, eval = FALSE}
-# install.packages("devtools")
-devtools::install_github("loelschlaeger/normalize")
 ```
 
 ## Example
