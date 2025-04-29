@@ -3,12 +3,11 @@
 \docType{package}
 \name{normalize-package}
 \alias{normalize-package}
-\alias{_PACKAGE}
 \title{normalize: Centering and Scaling of Numeric Data}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Provides a simple method for centering and scaling of numeric data. Certain columns or rows can be ignored when normalizing or be normalized jointly.
+Provides simple methods for centering and scaling of numeric data. Columns or rows can be ignored when normalizing or be normalized jointly.
 }
 \seealso{
 Useful links:

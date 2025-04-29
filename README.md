@@ -8,22 +8,24 @@
 [![R-CMD-check](https://github.com/loelschlaeger/normalize/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/loelschlaeger/normalize/actions/workflows/R-CMD-check.yaml)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/normalize)](https://CRAN.R-project.org/package=normalize)
+[![CRAN
+downloads](https://cranlogs.r-pkg.org/badges/grand-total/normalize)](https://CRAN.R-project.org/package=normalize)
 [![Codecov test
 coverage](https://codecov.io/gh/loelschlaeger/normalize/branch/master/graph/badge.svg)](https://app.codecov.io/gh/loelschlaeger/normalize?branch=master)
 <!-- badges: end -->
 
-`{normalize}` is a small `R` package that allows for normalization
-(i.e., centering to zero mean and scaling to unit variance) of numeric
-data. The goal is to extend the base R `scale()` function with some
-additional features:
+The `{normalize}` `R` package offers convenient tools to normalize
+(centering to zero mean and scaling to unit variance) numeric data:
 
 1.  works for `vector`, `matrix`, `data.frame`, and `list` objects
 
 2.  can normalize by row or by column
 
-3.  can ignore some rows or columns when normalizing
+3.  can ignore rows or columns when normalizing
 
-4.  allows for joint normalizing of certain rows or columns
+4.  allows for joint normalizing of rows or columns
+
+5.  provides the normalizing constants as attributes
 
 ## Installation
 
@@ -39,19 +41,20 @@ install.packages("normalize")
 Can normalize a `vector`:
 
 ``` r
-normalize(1:10)
+x <- 1:10
+normalize(x)
 #>  [1] -1.4863011 -1.1560120 -0.8257228 -0.4954337 -0.1651446  0.1651446
 #>  [7]  0.4954337  0.8257228  1.1560120  1.4863011
 #> attr(,"center")
 #> [1] 5.5
 #> attr(,"scale")
 #> [1] 3.02765
-normalize(1:10, center = FALSE)
+normalize(x, center = FALSE)
 #>  [1] 0.3302891 0.6605783 0.9908674 1.3211565 1.6514456 1.9817348 2.3120239
 #>  [8] 2.6423130 2.9726022 3.3028913
 #> attr(,"scale")
 #> [1] 3.02765
-normalize(1:10, scale = FALSE)
+normalize(x, scale = FALSE)
 #>  [1] -4.5 -3.5 -2.5 -1.5 -0.5  0.5  1.5  2.5  3.5  4.5
 #> attr(,"center")
 #> [1] 5.5

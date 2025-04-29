@@ -14,18 +14,21 @@ library("normalize")
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/loelschlaeger/normalize/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/loelschlaeger/normalize/actions/workflows/R-CMD-check.yaml)
 [![CRAN status](https://www.r-pkg.org/badges/version/normalize)](https://CRAN.R-project.org/package=normalize)
+[![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/normalize)](https://CRAN.R-project.org/package=normalize)
 [![Codecov test coverage](https://codecov.io/gh/loelschlaeger/normalize/branch/master/graph/badge.svg)](https://app.codecov.io/gh/loelschlaeger/normalize?branch=master)
 <!-- badges: end -->
 
-`{normalize}` is a small `R` package that allows for normalization (i.e., centering to zero mean and scaling to unit variance) of numeric data. The goal is to extend the base R `scale()` function with some additional features:
+The `{normalize}` `R` package offers convenient tools to normalize (centering to zero mean and scaling to unit variance) numeric data:
 
 1. works for `vector`, `matrix`, `data.frame`, and `list` objects
 
 2. can normalize by row or by column
 
-3. can ignore some rows or columns when normalizing
+3. can ignore rows or columns when normalizing
 
-4. allows for joint normalizing of certain rows or columns
+4. allows for joint normalizing of rows or columns
+
+5. provides the normalizing constants as attributes
 
 ## Installation
 
@@ -40,9 +43,10 @@ install.packages("normalize")
 Can normalize a `vector`:
 
 ```{r}
-normalize(1:10)
-normalize(1:10, center = FALSE)
-normalize(1:10, scale = FALSE)
+x <- 1:10
+normalize(x)
+normalize(x, center = FALSE)
+normalize(x, scale = FALSE)
 ```
 
 Can normalize a `matrix`:

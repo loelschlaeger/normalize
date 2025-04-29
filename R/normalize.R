@@ -1,36 +1,36 @@
 #' Centering and scaling of numeric data
 #'
 #' @description
-#' normalize \code{numeric} data saved as a \code{vector}, \code{matrix},
-#' \code{data.frame}, or \code{list} to have zero mean and / or unit variance
+#' Methods to normalize numeric data with respect to mean and variance.
 #'
 #' @param x
-#' an object to be normalized
+#' An object to be normalized.
 #'
-#' @param center
-#' \code{TRUE} to normalize to zero mean or \code{FALSE} for no centering
+#' @param center \[`integer(1)`\]\cr
+#' Normalize to zero mean?
 #'
-#' @param scale
-#' \code{TRUE} to normalize to unit variance or \code{FALSE} for no scaling
+#' @param scale \[`integer(1)`\]\cr
+#' Normalize to unit variance?
 #'
-#' @param byrow
-#' \code{TRUE} to normalize row-wise or \code{FALSE} to normalize column-wise
+#' @param byrow \[`integer(1)`\]\cr
+#' Only relevant if `x` has two dimensions (rows and columns).
 #'
-#' @param ignore
-#' an \code{integer} vector of column indices (or row indices if
-#' \code{byrow = TRUE}) to not normalize
+#' In this case, set to `TRUE` to normalize row-wise or `FALSE` to normalize
+#' column-wise (default).
 #'
-#' @param jointly
-#' a \code{list} of disjoint \code{integer} vectors of column indices (or row
-#' indices if \code{byrow = TRUE}) to normalize jointly
+#' @param ignore \[`integer()`\]\cr
+#' Column indices (or row indices if `byrow = TRUE`) to not normalize.
+#'
+#' @param jointly \[`list()`\]\cr
+#' Disjoint column indices (or row indices if `byrow = TRUE`) to normalize
+#' jointly.
 #'
 #' @param ...
-#' further arguments to be passed to or from other methods
+#' Further arguments to be passed to or from other methods.
 #'
 #' @return
-#' the normalized input \code{x} with the \code{numeric} centering and scaling
-#' values used (if any) added as attributes \code{"center"} and \code{"scale"}
-#' (ignored columns and rows get centering and scaling values of \code{NA})
+#' The normalized input `x` with the centering and scaling values used (if any)
+#' added as attributes `"center"` and `"scale"`.
 #'
 #' @export
 #'
@@ -153,8 +153,6 @@ normalize.list <- function(x, center = TRUE, scale = TRUE, ...) {
   lapply(x, normalize, center = center, scale = scale, ...)
 }
 
-#' @keywords internal
-
 center_values <- function(
     x, byrow = TRUE, ignore = integer(), jointly = list()
   ) {
@@ -188,8 +186,6 @@ center_values <- function(
   }
   return(centering)
 }
-
-#' @keywords internal
 
 scale_values <- function(
     x, byrow = TRUE, ignore = integer(), jointly = list()

@@ -1,21 +1,16 @@
 Package: normalize
 Type: Package
 Title: Centering and Scaling of Numeric Data
-Version: 0.1.0
-Authors@R: c(
-    person("Lennart", "Oelschl\u00e4ger", 
-           email = "oelschlaeger.lennart@gmail.com", 
-           role = c("aut", "cre"))
-           )
-Description: Provides a simple method for centering and scaling of numeric data. 
-    Certain columns or rows can be ignored when normalizing or be normalized jointly.
+Version: 0.1.1
+Authors@R: person("Lennart", "Oelschl\u00e4ger", email = "oelschlaeger.lennart@gmail.com", role = c("aut", "cre"))
+Description: Provides simple methods for centering and scaling of numeric data. 
+    Columns or rows can be ignored when normalizing or be normalized jointly.
 License: GPL (>= 3)
 Encoding: UTF-8
-RoxygenNote: 7.2.3
-Suggests: 
-    testthat (>= 3.0.0)
+RoxygenNote: 7.3.2
+Roxygen: list(markdown = TRUE)
+Suggests: testthat (>= 3.0.0)
 Config/testthat/edition: 3
-Imports: 
-    stats
+Imports: stats
 URL: https://github.com/loelschlaeger/normalize
 BugReports: https://github.com/loelschlaeger/normalize/issues

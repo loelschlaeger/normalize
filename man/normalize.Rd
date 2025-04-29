@@ -35,30 +35,35 @@ normalize(x, center = TRUE, scale = TRUE, ...)
 \method{normalize}{list}(x, center = TRUE, scale = TRUE, ...)
 }
 \arguments{
-\item{x}{an object to be normalized}
+\item{x}{An object to be normalized.}
 
-\item{center}{\code{TRUE} to normalize to zero mean or \code{FALSE} for no centering}
+\item{center}{[\code{integer(1)}]\cr
+Normalize to zero mean?}
 
-\item{scale}{\code{TRUE} to normalize to unit variance or \code{FALSE} for no scaling}
+\item{scale}{[\code{integer(1)}]\cr
+Normalize to unit variance?}
 
-\item{...}{further arguments to be passed to or from other methods}
+\item{...}{Further arguments to be passed to or from other methods.}
 
-\item{byrow}{\code{TRUE} to normalize row-wise or \code{FALSE} to normalize column-wise}
+\item{byrow}{[\code{integer(1)}]\cr
+Only relevant if \code{x} has two dimensions (rows and columns).
 
-\item{ignore}{an \code{integer} vector of column indices (or row indices if
-\code{byrow = TRUE}) to not normalize}
+In this case, set to \code{TRUE} to normalize row-wise or \code{FALSE} to normalize
+column-wise (default).}
 
-\item{jointly}{a \code{list} of disjoint \code{integer} vectors of column indices (or row
-indices if \code{byrow = TRUE}) to normalize jointly}
+\item{ignore}{[\code{integer()}]\cr
+Column indices (or row indices if \code{byrow = TRUE}) to not normalize.}
+
+\item{jointly}{[\code{list()}]\cr
+Disjoint column indices (or row indices if \code{byrow = TRUE}) to normalize
+jointly.}
 }
 \value{
-the normalized input \code{x} with the \code{numeric} centering and scaling
-values used (if any) added as attributes \code{"center"} and \code{"scale"}
-(ignored columns and rows get centering and scaling values of \code{NA})
+The normalized input \code{x} with the centering and scaling values used (if any)
+added as attributes \code{"center"} and \code{"scale"}.
 }
 \description{
-normalize \code{numeric} data saved as a \code{vector}, \code{matrix},
-\code{data.frame}, or \code{list} to have zero mean and / or unit variance
+Methods to normalize numeric data with respect to mean and variance.
 }
 \examples{
 # can normalize numeric vectors, matrices, data.frames, and lists of those
