@@ -6,13 +6,13 @@
 #' @param x
 #' An object to be normalized.
 #'
-#' @param center \[`integer(1)`\]\cr
+#' @param center \[`logical(1)`\]\cr
 #' Normalize to zero mean?
 #'
-#' @param scale \[`integer(1)`\]\cr
+#' @param scale \[`logical(1)`\]\cr
 #' Normalize to unit variance?
 #'
-#' @param byrow \[`integer(1)`\]\cr
+#' @param byrow \[`logical(1)`\]\cr
 #' Only relevant if `x` has two dimensions (rows and columns).
 #'
 #' In this case, set to `TRUE` to normalize row-wise or `FALSE` to normalize
