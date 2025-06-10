@@ -1,14 +1,3 @@
-test_that("prevents normalize character", {
-  expect_error(
-    normalize(LETTERS),
-    "cannot work with objects of type 'character'"
-  )
-  expect_error(
-    normalize(matrix(LETTERS, nrow = 2)),
-    "cannot work with objects of type 'character'"
-  )
-})
-
 test_that("can normalize single numeric", {
   x <- 1
   expect_warning(
@@ -283,6 +272,29 @@ test_that("can normalize list", {
         scale = c(a = 1, b = 1, c = 1, d = 1)
       )
     )
+  )
+})
+
+test_that("cannot normalize everything", {
+  expect_error(
+    normalize(LETTERS),
+    "cannot work with objects of type character"
+  )
+  expect_error(
+    normalize(matrix(LETTERS, nrow = 2)),
+    "cannot work with objects of type character"
+  )
+  expect_error(
+    normalize(diag),
+    "no 'normalize' method for class function"
+  )
+})
+
+test_that("allows and preserves attributes", {
+  x <- structure(1:3, "test_attribute" = "test")
+  expect_identical(
+    normalize(x, scale = FALSE),
+    structure(c(-1, 0, 1), center = 2, "test_attribute" = "test")
   )
 })
 

@@ -57,12 +57,10 @@
 #' )
 
 normalize <- function(x, center = TRUE, scale = TRUE, ...) {
-  if (is.character(x)) {
-    stop("sorry, I cannot work with objects of type 'character'")
-  }
+  if (is.character(x)) stop("cannot work with objects of type character")
   stopifnot(
-    "please set 'center' to TRUE or FALSE" = isTRUE(center) || isFALSE(center),
-    "please set 'scale' to TRUE or FALSE" = isTRUE(scale) || isFALSE(scale)
+    "'center' should be TRUE or FALSE" = isTRUE(center) || isFALSE(center),
+    "'scale' should be TRUE or FALSE" = isTRUE(scale) || isFALSE(scale)
   )
   UseMethod("normalize")
 }
@@ -70,9 +68,21 @@ normalize <- function(x, center = TRUE, scale = TRUE, ...) {
 #' @export
 #' @rdname normalize
 
+normalize.default <- function(x, ...) {
+  stop("no 'normalize' method for class ", class(x))
+}
+
+#' @export
+#' @rdname normalize
+
 normalize.numeric <- function(x, center = TRUE, scale = TRUE, ...) {
+  stopifnot(
+    "'x' must be atomic" = is.atomic(x),
+    "'x' must be one-dimensional" = is.null(dim(x))
+  )
+  dim(x) <- c(length(x), 1)
   structure(
-    normalize(as.matrix(x), center = center, scale = scale, byrow = FALSE),
+    normalize.matrix(x, center = center, scale = scale, byrow = FALSE),
     "dim" = NULL
   )
 }
@@ -85,17 +95,22 @@ normalize.matrix <- function(
     jointly = list(), ...
   ) {
   stopifnot(
-    "please set 'byrow' to TRUE or FALSE" = isTRUE(byrow) || isFALSE(byrow),
+    "'x' must be a matrix or data.frame" = is.matrix(x) || is.data.frame(x),
+    "'byrow' should be TRUE or FALSE" = isTRUE(byrow) || isFALSE(byrow),
     "'ignore' should be an index vector" = is.vector(ignore) && is.numeric(ignore),
     "'jointly' should be a list" = is.list(jointly)
   )
   if (center) {
-    centering <- center_values(x, byrow = byrow, ignore = ignore, jointly = jointly)
+    centering <- .center_values(x, byrow = byrow, ignore = ignore, jointly = jointly)
     if (length(ignore) > 0) {
       if (byrow) {
-        x[-ignore, ] <- sweep(x[-ignore, , drop = FALSE], 1, centering[-ignore], "-")
+        .extract_keep_attr(x, -ignore, ) <- sweep(
+          x[-ignore, , drop = FALSE], 1, centering[-ignore], "-"
+        )
       } else {
-        x[, -ignore] <- sweep(x[, -ignore, drop = FALSE], 2, centering[-ignore], "-")
+        .extract_keep_attr(x, , -ignore) <- sweep(
+          x[, -ignore, drop = FALSE], 2, centering[-ignore], "-"
+        )
       }
     } else {
       if (byrow) {
@@ -106,12 +121,16 @@ normalize.matrix <- function(
     }
   }
   if (scale) {
-    scaling <- scale_values(x, byrow = byrow, ignore = ignore, jointly = jointly)
+    scaling <- .scale_values(x, byrow = byrow, ignore = ignore, jointly = jointly)
     if (length(ignore) > 0) {
       if (byrow) {
-        x[-ignore, ] <- sweep(x[-ignore, , drop = FALSE], 1, scaling[-ignore], "/")
+        .extract_keep_attr(x, -ignore, ) <- sweep(
+          x[-ignore, , drop = FALSE], 1, scaling[-ignore], "/"
+        )
       } else {
-        x[, -ignore] <- sweep(x[, -ignore, drop = FALSE], 2, scaling[-ignore], "/")
+        .extract_keep_attr(x, , -ignore) <- sweep(
+          x[, -ignore, drop = FALSE], 2, scaling[-ignore], "/"
+        )
       }
     } else {
       if (byrow) {
@@ -140,6 +159,7 @@ normalize.data.frame <- function(
     x, center = TRUE, scale = TRUE, byrow = FALSE, ignore = integer(),
     jointly = list(), ...
   ) {
+  stopifnot("'x' must be a data.frame" = is.data.frame(x))
   normalize.matrix(
     x, center = center, scale = scale, byrow = byrow, ignore = ignore,
     jointly = jointly, ...
@@ -150,10 +170,11 @@ normalize.data.frame <- function(
 #' @rdname normalize
 
 normalize.list <- function(x, center = TRUE, scale = TRUE, ...) {
+  stopifnot("'x' must be a list" = is.list(x))
   lapply(x, normalize, center = center, scale = scale, ...)
 }
 
-center_values <- function(
+.center_values <- function(
     x, byrow = TRUE, ignore = integer(), jointly = list()
   ) {
   centering <- rep(NA_real_, ifelse(byrow, nrow(x), ncol(x)))
@@ -187,7 +208,7 @@ center_values <- function(
   return(centering)
 }
 
-scale_values <- function(
+.scale_values <- function(
     x, byrow = TRUE, ignore = integer(), jointly = list()
   ) {
   scaling <- rep(NA_real_, ifelse(byrow, nrow(x), ncol(x)))
@@ -220,5 +241,25 @@ scale_values <- function(
     scaling[join] <- sqrt(sum((scaling[join]^2 * (n - 1))) / (length(scaling[join]) * (n - 1)))
   }
   return(scaling)
+}
+
+`.extract_keep_attr<-` <- function(x, ..., value) {
+  updated <- x
+  updated[...] <- value
+  attrs <- attributes(x)
+  if (!is.null(attributes(updated)$dim)) {
+    attrs$dim <- attributes(updated)$dim
+  } else {
+    attrs$dim <- NULL
+  }
+  for (a in c("names", "dimnames", "row.names")) {
+    if (!is.null(attributes(updated)[[a]])) {
+      attrs[[a]] <- attributes(updated)[[a]]
+    } else {
+      attrs[[a]] <- NULL
+    }
+  }
+  mostattributes(updated) <- attrs
+  return(updated)
 }
 

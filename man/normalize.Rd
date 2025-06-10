@@ -2,6 +2,7 @@
 % Please edit documentation in R/normalize.R
 \name{normalize}
 \alias{normalize}
+\alias{normalize.default}
 \alias{normalize.numeric}
 \alias{normalize.matrix}
 \alias{normalize.data.frame}
@@ -9,6 +10,8 @@
 \title{Centering and scaling of numeric data}
 \usage{
 normalize(x, center = TRUE, scale = TRUE, ...)
+
+\method{normalize}{default}(x, ...)
 
 \method{normalize}{numeric}(x, center = TRUE, scale = TRUE, ...)
 
