@@ -27,6 +27,8 @@ The `{normalize}` `R` package offers convenient tools to normalize
 
 5.  provides the normalizing constants as attributes
 
+6.  preserves object attributes
+
 ## Installation
 
 You can install the released version from
