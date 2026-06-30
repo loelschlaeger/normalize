@@ -7,10 +7,10 @@ Description: Provides simple methods for centering and scaling of numeric data.
     Columns or rows can be ignored when normalizing or be normalized jointly.
 License: GPL (>= 3)
 Encoding: UTF-8
-RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE)
 Suggests: testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Imports: stats
 URL: https://github.com/loelschlaeger/normalize
 BugReports: https://github.com/loelschlaeger/normalize/issues
+Config/roxygen2/version: 8.0.0
