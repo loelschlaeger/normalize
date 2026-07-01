@@ -7,7 +7,7 @@
 \alias{normalize.matrix}
 \alias{normalize.data.frame}
 \alias{normalize.list}
-\title{Centering and scaling of numeric data}
+\title{Normalize numeric data}
 \usage{
 normalize(x, center = TRUE, scale = TRUE, ...)
 
@@ -41,10 +41,10 @@ normalize(x, center = TRUE, scale = TRUE, ...)
 \item{x}{An object to be normalized.}
 
 \item{center}{[\code{logical(1)}]\cr
-Normalize to zero mean?}
+Should values be centered to zero mean?}
 
 \item{scale}{[\code{logical(1)}]\cr
-Normalize to unit variance?}
+Should values be scaled to unit variance?}
 
 \item{...}{Further arguments to be passed to or from other methods.}
 
@@ -55,21 +55,28 @@ In this case, set to \code{TRUE} to normalize row-wise or \code{FALSE} to normal
 column-wise (default).}
 
 \item{ignore}{[\code{integer()}]\cr
-Column indices (or row indices if \code{byrow = TRUE}) to not normalize.}
+Only relevant if \code{x} has two dimensions (rows and columns).
+
+Indices to leave unchanged. With \code{byrow = TRUE}, these are row indices.
+With \code{byrow = FALSE}, these are column indices. This is useful, for example,
+to keep identifier or non-numeric columns in a data frame.}
 
 \item{jointly}{[\code{list()}]\cr
-Disjoint column indices (or row indices if \code{byrow = TRUE}) to normalize
-jointly.}
+Only relevant if \code{x} has two dimensions (rows and columns).
+
+A list of disjoint index groups to normalize jointly. With \code{byrow = TRUE},
+these are row indices. With \code{byrow = FALSE}, these are column indices.}
 }
 \value{
-The normalized input \code{x} with the centering and scaling values used (if any)
-added as attributes \code{"center"} and \code{"scale"}.
+A normalized version of \code{x}, preserving attributes where possible. Lists
+return a list with each element normalized. The centering and scaling values
+used are stored in the \code{"center"} and \code{"scale"} attributes where relevant.
 }
 \description{
-Methods to normalize numeric data with respect to mean and variance.
+Center and scale vectors, matrices, data frames, or lists of these objects.
 }
 \examples{
-# can normalize numeric vectors, matrices, data.frames, and lists of those
+# can normalize vectors, matrices, data.frames, and lists of such types
 normalize(
   list(
     c(-3, 0, 3),

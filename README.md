@@ -15,7 +15,7 @@ coverage](https://codecov.io/gh/loelschlaeger/normalize/branch/master/graph/badg
 <!-- badges: end -->
 
 The `{normalize}` `R` package offers convenient tools to normalize
-(centering to zero mean and scaling to unit variance) numeric data:
+numeric data from common R objects:
 
 1.  works for `vector`, `matrix`, `data.frame`, and `list` objects
 
@@ -38,9 +38,9 @@ You can install the released version from
 install.packages("normalize")
 ```
 
-## Example
+## Examples
 
-Can normalize a `vector`:
+Normalize a `vector` by centering, scaling, or both:
 
 ``` r
 x <- 1:10
@@ -62,7 +62,7 @@ normalize(x, scale = FALSE)
 #> [1] 5.5
 ```
 
-Can normalize a `matrix`:
+Normalize a `matrix` column-wise, optionally with joint centering:
 
 ``` r
 normalize(
@@ -79,7 +79,7 @@ normalize(
 #> [1] 1 1 1 1
 ```
 
-Can normalize a `data.frame`:
+Normalize a `data.frame` while keeping non-numeric columns unchanged:
 
 ``` r
 normalize(
