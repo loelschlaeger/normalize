@@ -7,7 +7,7 @@
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Provides simple methods for centering and scaling of numeric data. Columns or rows can be ignored when normalizing or be normalized jointly.
+Centers and scales numeric data in vectors, matrices, data frames, time series, and lists of these objects. Rows or columns can be left unchanged or be normalized jointly. The values used for centering and scaling are returned as attributes.
 }
 \seealso{
 Useful links:

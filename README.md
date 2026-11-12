@@ -15,9 +15,10 @@ coverage](https://codecov.io/gh/loelschlaeger/normalize/branch/master/graph/badg
 <!-- badges: end -->
 
 The `{normalize}` `R` package offers convenient tools to normalize
-numeric data from common R objects:
+numeric data from common R objects (i.e., to subtract the mean and to
+divide by the standard deviation):
 
-1.  works for `vector`, `matrix`, `data.frame`, and `list` objects
+1.  works for `vector`, `matrix`, `data.frame`, `ts`, and `list` objects
 
 2.  can normalize by row or by column
 
@@ -40,7 +41,9 @@ install.packages("normalize")
 
 ## Examples
 
-Normalize a `vector` by centering, scaling, or both:
+Normalize a `vector` by centering, scaling, or both. The centering and
+scaling values used are stored in the `"center"` and `"scale"`
+attributes.
 
 ``` r
 x <- 1:10
@@ -62,7 +65,8 @@ normalize(x, scale = FALSE)
 #> [1] 5.5
 ```
 
-Normalize a `matrix` column-wise, optionally with joint centering:
+Normalize a `matrix` column-wise, optionally with joint normalization of
+columns, which then share one centering and one scaling value:
 
 ``` r
 normalize(
@@ -92,10 +96,19 @@ normalize(
 #> 3  1 C  1  1
 ```
 
+Normalize a time series (class `ts`) while keeping its time series
+properties:
+
+``` r
+normalize(ts(c(1, 3, 5, 7), start = c(2000, 1), frequency = 4))
+#>            Qtr1       Qtr2       Qtr3       Qtr4
+#> 2000 -1.1618950 -0.3872983  0.3872983  1.1618950
+```
+
 Can work on a `list`:
 
 ``` r
-normalize(list(1:5, diag(3), data.frame(1:3, 2:4)))
+normalize(list(1:5, diag(3), data.frame(a = 1:3, b = 2:4)))
 #> [[1]]
 #> [1] -1.2649111 -0.6324555  0.0000000  0.6324555  1.2649111
 #> attr(,"center")
@@ -114,8 +127,8 @@ normalize(list(1:5, diag(3), data.frame(1:3, 2:4)))
 #> [1] 0.5773503 0.5773503 0.5773503
 #> 
 #> [[3]]
-#>   X1.3 X2.4
-#> 1   -1   -1
-#> 2    0    0
-#> 3    1    1
+#>    a  b
+#> 1 -1 -1
+#> 2  0  0
+#> 3  1  1
 ```

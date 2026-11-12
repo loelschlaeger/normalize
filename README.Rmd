@@ -19,9 +19,10 @@ library("normalize")
 <!-- badges: end -->
 
 The `{normalize}` `R` package offers convenient tools to normalize numeric data
-from common R objects:
+from common R objects (i.e., to subtract the mean and to divide by the standard
+deviation):
 
-1. works for `vector`, `matrix`, `data.frame`, and `list` objects
+1. works for `vector`, `matrix`, `data.frame`, `ts`, and `list` objects
 
 2. can normalize by row or by column
 
@@ -43,7 +44,8 @@ install.packages("normalize")
 
 ## Examples
 
-Normalize a `vector` by centering, scaling, or both:
+Normalize a `vector` by centering, scaling, or both. The centering and scaling
+values used are stored in the `"center"` and `"scale"` attributes.
 
 ```{r, vector example}
 x <- 1:10
@@ -52,7 +54,8 @@ normalize(x, center = FALSE)
 normalize(x, scale = FALSE)
 ```
 
-Normalize a `matrix` column-wise, optionally with joint centering:
+Normalize a `matrix` column-wise, optionally with joint normalization of
+columns, which then share one centering and one scaling value:
 
 ```{r, matrix example}
 normalize(
@@ -70,8 +73,14 @@ normalize(
 )
 ```
 
+Normalize a time series (class `ts`) while keeping its time series properties:
+
+```{r, ts example}
+normalize(ts(c(1, 3, 5, 7), start = c(2000, 1), frequency = 4))
+```
+
 Can work on a `list`:
 
 ```{r, list example}
-normalize(list(1:5, diag(3), data.frame(1:3, 2:4)))
+normalize(list(1:5, diag(3), data.frame(a = 1:3, b = 2:4)))
 ```

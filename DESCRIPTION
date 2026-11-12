@@ -1,10 +1,12 @@
 Package: normalize
 Type: Package
 Title: Centering and Scaling of Numeric Data
-Version: 0.1.3
+Version: 0.2.0
 Authors@R: person("Lennart", "Oelschl\u00e4ger", email = "oelschlaeger.lennart@gmail.com", role = c("aut", "cre"))
-Description: Provides simple methods for centering and scaling of numeric data. 
-    Columns or rows can be ignored when normalizing or be normalized jointly.
+Description: Centers and scales numeric data in vectors, matrices, data
+    frames, time series, and lists of these objects. Rows or columns can be
+    left unchanged or be normalized jointly. The values used for centering and
+    scaling are returned as attributes.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -13,4 +15,4 @@ Config/testthat/edition: 3
 Imports: stats
 URL: https://github.com/loelschlaeger/normalize
 BugReports: https://github.com/loelschlaeger/normalize/issues
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.0

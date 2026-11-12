@@ -3,7 +3,9 @@
 \name{normalize}
 \alias{normalize}
 \alias{normalize.default}
+\alias{normalize.ts}
 \alias{normalize.numeric}
+\alias{normalize.logical}
 \alias{normalize.matrix}
 \alias{normalize.data.frame}
 \alias{normalize.list}
@@ -13,7 +15,11 @@ normalize(x, center = TRUE, scale = TRUE, ...)
 
 \method{normalize}{default}(x, ...)
 
+\method{normalize}{ts}(x, center = TRUE, scale = TRUE, ...)
+
 \method{normalize}{numeric}(x, center = TRUE, scale = TRUE, ...)
+
+\method{normalize}{logical}(x, center = TRUE, scale = TRUE, ...)
 
 \method{normalize}{matrix}(
   x,
@@ -64,17 +70,57 @@ to keep identifier or non-numeric columns in a data frame.}
 \item{jointly}{[\code{list()}]\cr
 Only relevant if \code{x} has two dimensions (rows and columns).
 
-A list of disjoint index groups to normalize jointly. With \code{byrow = TRUE},
-these are row indices. With \code{byrow = FALSE}, these are column indices.}
+A list of disjoint index groups to normalize jointly, see details. With
+\code{byrow = TRUE}, these are row indices. With \code{byrow = FALSE}, these are
+column indices.}
 }
 \value{
-A normalized version of \code{x}, preserving attributes where possible. Lists
-return a list with each element normalized. The centering and scaling values
-used are stored in the \code{"center"} and \code{"scale"} attributes where relevant.
+A normalized version of \code{x}, preserving its class, dimensions, names, and
+other attributes. Lists return a list with each element normalized.
+
+The centering and scaling values used are stored in the \code{"center"} and
+\code{"scale"} attributes (only if the corresponding operation was requested).
+For a vector, each attribute is a single number, while for a matrix or data
+frame, each attribute has one element per column (or per row if
+\code{byrow = TRUE}). The elements are named if the columns or rows have names,
+and they are \code{NA} for ignored columns or rows. For a list, the elements of
+the result have these attributes.
 }
 \description{
-Center and scale vectors, matrices, data frames, or lists of these objects.
+Center and scale vectors, matrices, data frames, time series, or lists of
+these objects, i.e., subtract the mean and divide by the standard deviation.
 }
+\details{
+A vector is normalized as a whole, while a matrix or data frame is
+normalized column-wise (or row-wise if \code{byrow = TRUE}). A univariate time
+series is treated like a vector and a multivariate time series like a
+matrix. For a list, each element is normalized separately.
+
+Note that logical values are treated as \code{0} and \code{1}, and that normalized
+values are of type \code{double}.
+}
+\section{Missing values}{
+Missing values are ignored when computing the mean and the standard
+deviation, and they stay missing in the normalized object. The standard
+deviation is missing if fewer than two values are available, and it is zero
+if all values are equal. In these cases, scaling yields values that are not
+finite. A warning is issued if the normalized values contain missing or
+infinite values.
+}
+
+\section{Joint normalization}{
+Rows or columns that are normalized jointly (see the \code{jointly} argument)
+share one centering and one scaling value. More precisely, the centering
+value is the mean of all values in the group, and the scaling value is the
+pooled standard deviation \deqn{\sqrt{\sum_k w_k s_k^2 / \sum_k w_k},}
+where \eqn{s_k^2} denotes the variance of row or column \eqn{k} in the
+group and the weight \eqn{w_k} is its number of non-missing values minus
+one. Without missing values, this is the square root of the mean of the
+variances. Note that the pooled standard deviation measures the variation
+within the rows or columns, such that differences between their means do
+not enter.
+}
+
 \examples{
 # can normalize vectors, matrices, data.frames, and lists of such types
 normalize(
@@ -84,6 +130,11 @@ normalize(
     data.frame(a = 1:3, b = 4:6, c = 7:9, d = 10:12)
   )
 )
+
+# centering and scaling values are stored as attributes
+x <- normalize(c(2, 4, 9))
+attr(x, "center")
+attr(x, "scale")
 
 # can ignore columns (or rows)
 normalize(
@@ -96,4 +147,7 @@ normalize(
   matrix(1:12, nrow = 3, ncol = 4),
   jointly = list(1:2, 3:4)
 )
+
+# can normalize time series
+normalize(stats::ts(c(1, 3, 5, 7), start = c(2000, 1), frequency = 4))
 }
